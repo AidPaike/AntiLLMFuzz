@@ -1,0 +1,10 @@
+# Core dependencies for LLM Fuzzer Semantic Disruptor
+javalang==0.13.0
+spacy==3.7.2
+requests==2.31.0
+pytest==7.4.3
+hypothesis==6.92.1
+pyyaml==6.0.1
+
+# Additional dependencies for spaCy language model
+# Run: python -m spacy download en_core_web_sm
