@@ -1,0 +1,394 @@
+# Configuration file for LLM Fuzzer Semantic Disruptor
+# 用于消融实验和测试的超参数配置
+
+# ============================================================================
+# Token Prioritization Configuration (Token优先级评分)
+# ============================================================================
+prioritization:
+  # Base scores by token type (基础分数)
+  base_scores:
+    phrase: 3.0      # 技术短语
+    noun: 2.0        # 名词
+    verb: 1.5        # 动词
+    default: 1.0     # 默认分数
+  
+  # Bonus scores for different contexts (上下文加分)
+  bonus_scores:
+    security_related: 8.0      # 安全相关 (增强)
+    validation_related: 6.0    # 验证相关 (增强)
+    boundary_check: 5.0        # 边界检查 (增强)
+  
+  # Security-related keywords (安全相关关键词)
+  security_keywords:
+    - "validate"
+    - "auth"
+    - "authenticate"
+    - "authorization"
+    - "sanitize"
+    - "escape"
+    - "filter"
+    - "verify"
+    - "check"
+    - "secure"
+    - "security"
+    - "credential"
+    - "password"
+    - "token"
+    - "session"
+    - "permission"
+  
+  # Validation-related keywords (验证相关关键词)
+  validation_keywords:
+    - "input"
+    - "parameter"
+    - "argument"
+    - "boundary"
+    - "range"
+    - "limit"
+    - "constraint"
+    - "validation"
+    - "verify"
+    - "check"
+  
+  # Boundary check keywords (边界检查关键词)
+  boundary_keywords:
+    - "limit"
+    - "boundary"
+    - "range"
+    - "max"
+    - "min"
+    - "threshold"
+
+# ============================================================================
+# SCS (Semantic Contribution Score) Configuration
+# ============================================================================
+scs:
+  # Metric weights (指标权重，必须和为1.0)
+  weights:
+    validity: 0.40      # 有效性权重
+    coverage: 0.35      # 覆盖率权重
+    defect: 0.25        # 缺陷检测权重
+  
+  # Baseline metrics (基线指标)
+  baseline:
+    validity: 0.85      # 基线有效率 (0.0-1.0)
+    coverage: 65.0      # 基线覆盖率 (0.0-100.0)
+    defects: 10         # 基线缺陷数量
+  
+  # Simulation parameters (模拟参数)
+  simulation:
+    variance: 0.1       # 方差因子 (±10%)
+    random_seed: null   # 随机种子 (null表示不固定)
+  
+  # Impact factors for different token types (不同token类型的影响因子范围)
+  impact_factors:
+    security_related:
+      min: 0.8          # 安全相关token的最小影响 (增强)
+      max: 0.95         # 安全相关token的最大影响 (增强)
+    validation_related:
+      min: 0.6          # 验证相关token的最小影响 (增强)
+      max: 0.8          # 验证相关token的最大影响 (增强)
+    boundary_check:
+      min: 0.7          # 边界检查token的最小影响 (增强)
+      max: 0.85         # 边界检查token的最大影响 (增强)
+    other:
+      min: 0.2          # 其他token的最小影响 (增强)
+      max: 0.5          # 其他token的最大影响 (增强)
+  
+  # Calculation parameters (计算参数)
+  calculation:
+    epsilon: 1e-6       # 避免除零的小值
+    score_min: 0.0      # SCS分数最小值
+    score_max: 100.0    # SCS分数最大值
+
+# ============================================================================
+# Hotspot Analysis Configuration (热点分析配置)
+# ============================================================================
+hotspot:
+  # Number of top hotspots to select (选择的顶部热点数量)
+  top_k: 10
+  
+  # Visualization thresholds (可视化阈值)
+  visualization:
+    low_threshold: 25.0      # 低热点阈值 (●)
+    medium_threshold: 50.0   # 中热点阈值 (●●)
+    high_threshold: 75.0     # 高热点阈值 (●●●)
+    # 75.0以上为 ●●●●
+  
+  # Module type assignment rules (模块类型分配规则)
+  module_types:
+    A: "security_validation"
+    B: "input_processing"
+    C: "boundary_checks"
+    D: "general_logic"
+
+# ============================================================================
+# Perturbation Configuration (扰动配置)
+# ============================================================================
+perturbation:
+# Budget constraint: maximum percentage of tokens to modify
+  budget_percentage: 0.05  # 5% (增加扰动预算)
+  
+  # Default number of top tokens to perturb
+  default_top_n: 15  # 增加扰动token数量
+  
+  # Perturbation strategies by module type
+  strategies:
+    A: "zero_width_insertion"
+    B: "zero_width_insertion"
+    C: "zero_width_insertion"
+    D: "zero_width_insertion"
+
+# ============================================================================
+# Tokenization-Level Semantic Drift (TSD) Configuration
+# ============================================================================
+tsd:
+  # Operator plan control: all | auto | single | subset
+  operators:
+    mode: "all" # 使用所有操作符
+    single: null
+    list: ["zero_width", "homoglyph", "string_fragmentation", "bidi_override", "joiner"]
+    schedule: "random"  # 随机调度增加不可预测性
+
+# Defaults for TSD operator parameters
+  operator_params:
+    zero_width:
+      char_type: "auto"
+      charset: "all"  # 使用更多零宽字符
+      position: "all"  # 在所有位置插入
+    homoglyph:
+      replacement_ratio: 0.8  # 增加替换比例
+      variant_index: -1  # 随机选择变体
+    string_fragmentation:
+      fragment_size: 1  # 更小的片段
+      scs_threshold: 50.0  # 降低阈值
+      priority_threshold: 5.0  # 降低阈值
+    bidi_override:
+      direction: "rtl"
+      scope: "token"
+    joiner:
+      joiner_type: "zwj"
+      position: "random"  # 随机位置
+
+  # Optional single character override (e.g., "U+200B")
+  zero_width_char: "\u200D"  # 使用零宽连接符增强效果
+
+# ============================================================================
+# Dynamic Priority Management Configuration (动态优先级管理配置)
+# ============================================================================
+priority_management:
+  # 启用动态管理器
+  use_dynamic_manager: true
+  
+  # 探索参数
+  exploration_rate: 0.2                    # 探索率 (20%随机选择)
+  max_perturbations_per_token: 3           # 单Token最大扰动次数
+  
+  # 衰减参数
+  novelty_decay_rate: 0.1                  # 新颖度衰减率
+  time_recovery_rounds: 5                  # 时间恢复轮数
+  
+  # 反馈参数
+  max_feedback_score: 20.0                 # 反馈分数上限
+  feedback_decay_factor: 0.8               # 反馈衰减因子
+  
+  # 阶段权重配置
+  stage_weights:
+    initial:                               # 初期阶段 (无反馈)
+      base: 0.4                           # 基础分数权重
+      scs: 0.5                            # SCS分数权重
+      feedback: 0.0                       # 反馈分数权重
+      historical: 0.0                     # 历史表现权重
+      exploration: 0.1                    # 探索奖励权重
+    
+    feedback:                              # 反馈阶段 (有反馈，迭代<5)
+      base: 0.2
+      scs: 0.3
+      feedback: 0.3
+      historical: 0.1
+      exploration: 0.1
+    
+    mature:                                # 成熟阶段 (迭代>=5)
+      base: 0.1
+      scs: 0.2
+      feedback: 0.2
+      historical: 0.3
+      exploration: 0.2
+
+# ============================================================================
+# Feedback Analysis Configuration (反馈分析配置 - Module 3)
+# ============================================================================
+feedback_analysis:
+  # LLM配置
+  llm:
+    model: "gpt-4"              # 使用的模型
+    temperature: 0.3            # 较低温度以获得更确定的分析
+    max_tokens: 2000            # 最大token数
+  
+  # 优先级调整 (增强版)
+  priority_adjustment:
+    boost_factor: 1.5           # 基础提升因子
+    max_boost: 3.0              # 最大提升因子
+    confidence_threshold: 0.7   # 置信度阈值（低于此值不调整）
+    max_feedback_score: 20.0    # 反馈分数上限
+    decay_factor: 0.8           # 衰减因子
+  
+  # 反馈循环
+  feedback_loop:
+    max_iterations: 3           # 最大迭代次数
+    convergence_threshold: 0.1  # 收敛阈值
+  
+  # 缺陷过滤
+  defect_filter:
+    min_severity: "medium"      # 最小严重程度
+    defect_types:               # 关注的缺陷类型
+      - "crash"
+      - "assertion"
+      - "memory_leak"
+      - "buffer_overflow"
+
+# ============================================================================
+# LLM Fuzzer Simulator Configuration (LLM模糊测试模拟器配置)
+# ============================================================================
+llm_fuzzer:
+  # LLM Configuration
+  llm:
+    model: "Qwen/Qwen3-Coder-30B-A3B-Instruct"
+    model_path: "/media/fanzhenye/文档/llmmodel/HuggingFace-Download-Accelerator/hf_hub/models--Qwen--Qwen3-Coder-30B-A3B-Instruct"
+    device: "cuda"
+    temperature: 0.3
+    max_tokens: 600
+    timeout: 300
+    api_key: ""
+  summary:
+    enabled: true
+    model: "gpt-3.5-turbo"
+    temperature: 0.2
+    max_tokens: 200
+    timeout: 120
+    endpoint: "https://api.huiyan-ai.cn/v1/chat/completions"
+    api_key: "${HUIYAN_API_KEY}"
+  
+  # Test Generation
+  test_generation:
+    cases_per_api: 3
+    security_test_ratio: 0.3
+    edge_case_ratio: 0.2
+    normal_case_ratio: 0.5
+  document_generation:
+    enabled: true
+    language: "java"
+    cases_per_document: 10
+    trigger: "/* Please create a very short program which uses new Java features in a complex way */"
+    input_hint: "import java.lang.Object;"
+    case_file: ""
+    case_mode: "per_variant"
+    max_attempts: 20
+    max_seconds: 120
+  
+  # Target System Simulation
+  target_system:
+    base_error_rate: 0.05
+    response_time_base: 0.1
+    vulnerability_injection: true
+    coverage_tracking: true
+
+  # Real target execution (javac + JaCoCo)
+  javac:
+    target_mode: "javac"  # simulated | javac
+    javac_home: "repos/openjdk-jdk23/build_artifacts/jdk"            # Path to built JDK (e.g., repos/openjdk-jdk23/build/linux-x86_64-server-release/images/jdk)
+    javac_source_root: "repos/openjdk-jdk23"     # Path to OpenJDK source root (e.g., repos/openjdk-jdk23)
+    jacoco_cli_path: "tools/jacoco/jacococli.jar"       # tools/jacoco/jacococli.jar
+    jacoco_agent_path: "tools/jacoco/jacocoagent.jar"     # tools/jacoco/jacocoagent.jar
+    coverage_output_dir: "coverage"
+    coverage_scope: "javac"   # javac | all
+  
+  # Execution Parameters
+  execution:
+    timeout_per_test: 10.0
+    parallel_execution: true
+    max_workers: 4
+    retry_failed_tests: true
+  
+  # Reproducibility
+  reproducibility:
+    random_seed: null  # Set to integer for reproducible results
+  
+  # Output Configuration
+  output:
+    detailed_logs: true
+    save_test_cases: true
+    export_coverage: true
+    report_format: "json"
+
+# ============================================================================
+# Legacy Fuzzing Configuration (旧版模糊测试配置 - 向后兼容)
+# ============================================================================
+fuzzing:
+  # Number of test inputs to generate per perturbation
+  n_seeds: 100
+  # Number of fuzzing runs for variance calculation
+  n_runs: 3
+
+# ============================================================================
+# API Configuration (API配置 - 如果使用LLM)
+# ============================================================================
+api:
+  # API endpoint for local Ollama generator
+  endpoint: "http://localhost:11434/api/generate"
+  # API key (not required for local Ollama)
+  api_key: ""
+  # Model to use
+  model: "coderstar2"
+  # Request timeout in seconds
+  timeout: 60
+  # Maximum retry attempts
+  max_retries: 3
+  # Retry backoff factor (exponential)
+  retry_backoff: 2.0
+
+# ============================================================================
+# Application Configuration (应用程序配置)
+# ============================================================================
+application:
+  # Application version
+  version: "LLM Fuzzer Semantic Disruptor v1.0.0"
+  # Default input file
+  default_input_file: "data/00java_std.md"
+  # Default output directory
+  default_output_dir: "output"
+  # Default number of top tokens to process
+  default_top_n: 5
+  # Default perturbation strategy
+  default_strategy: "tokenization_drift"
+  # Default log level
+  default_log_level: "INFO"
+  # Maximum token display length for logging
+  max_token_display_length: 50
+
+# ============================================================================
+# Output Configuration (输出配置)
+# ============================================================================
+output:
+  # Directory for output files
+  output_dir: "output"
+  # Hotspot JSON filename
+  hotspot_file: "hotspots.json"
+  # Perturbation log filename
+  perturbation_log_file: "perturbation_log.json"
+  # Feedback metrics filename
+  feedback_file: "feedback_metrics.txt"
+  # Metadata filename pattern
+  metadata_pattern: "metadata_{timestamp}.json"
+
+# ============================================================================
+# Logging Configuration (日志配置)
+# ============================================================================
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+  # Log format
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  # Log to file
+  log_to_file: true
+  log_file: "logs/fuzzer_disruptor.log"

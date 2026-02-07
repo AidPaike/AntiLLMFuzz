@@ -1,0 +1,101 @@
+# LLM Fuzzer Semantic Disruptor - 简化配置
+# 这是一个简化版本，包含最重要的配置项
+
+# ============================================================================
+# 基础配置
+# ============================================================================
+application:
+  version: "LLM Fuzzer Semantic Disruptor v1.0.0"
+  default_input_file: "data/00java_std.md"
+  default_output_dir: "output"
+  default_top_n: 5
+  default_strategy: "tokenization_drift"
+  default_log_level: "INFO"
+
+# ============================================================================
+# LLM配置 - 支持多后端自动降级
+# ============================================================================
+llm:
+  # 后端优先级顺序
+  backends:
+    - type: "ollama"
+      model: "qwen2.5-coder"
+      endpoint: "http://localhost:11434"
+      enabled: true
+    - type: "mock"
+      enabled: true  # 总是启用作为兜底
+    - type: "openai"
+      model: "gpt-3.5-turbo"
+      api_key: "${OPENAI_API_KEY}"  # 从环境变量读取
+      enabled: false
+
+# ============================================================================
+# Token优先级配置
+# ============================================================================
+prioritization:
+  base_scores:
+    phrase: 3.0
+    noun: 2.0
+    verb: 1.5
+    default: 1.0
+  
+  bonus_scores:
+    security_related: 5.0
+    validation_related: 4.0
+    boundary_check: 3.0
+  
+  security_keywords:
+    - "validate"
+    - "auth"
+    - "security"
+    - "credential"
+    - "password"
+    - "token"
+    - "session"
+    - "permission"
+
+# ============================================================================
+# 扰动策略配置
+# ============================================================================
+perturbation:
+  # 预设策略组合
+  strategy_groups:
+    quick:
+      - "tokenization_drift"
+    semantic:
+      - "tokenization_drift"
+      - "documentation_deception"
+      - "cognitive_manipulation"
+    comprehensive:
+      - "tokenization_drift"
+      - "lexical_disguise"
+      - "documentation_deception"
+      - "cognitive_manipulation"
+      - "formatting_noise"
+  
+  # 默认参数
+  default_top_n: 5
+  budget_percentage: 0.01  # 1%
+
+# ============================================================================
+# 输出配置
+# ============================================================================
+output:
+  # 文件命名
+  timestamp_format: "%Y%m%d_%H%M%S"
+  
+  # 生成的文件类型
+  generate_metadata: true
+  generate_visualization: false  # 可选
+  
+  # 目录结构
+  create_timestamped_dirs: true
+
+# ============================================================================
+# 日志配置
+# ============================================================================
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  log_to_file: true
+  log_file: "logs/fuzzer_disruptor.log"

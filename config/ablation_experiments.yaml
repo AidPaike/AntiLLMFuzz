@@ -1,0 +1,302 @@
+# Ablation Experiment Configurations
+# 消融实验配置 - 用于测试不同超参数组合的效果
+
+# ============================================================================
+# Experiment 1: Baseline Configuration (基线配置)
+# ============================================================================
+baseline:
+  name: "Baseline"
+  description: "Default configuration with standard parameters"
+  
+  prioritization:
+    base_scores:
+      phrase: 3.0
+      noun: 2.0
+      verb: 1.5
+      default: 1.0
+    bonus_scores:
+      security_related: 5.0
+      validation_related: 4.0
+      boundary_check: 3.0
+  
+  scs:
+    weights:
+      validity: 0.40
+      coverage: 0.35
+      defect: 0.25
+    baseline:
+      validity: 0.85
+      coverage: 65.0
+      defects: 10
+    simulation:
+      variance: 0.1
+
+# ============================================================================
+# Experiment 2: High Security Focus (高安全性关注)
+# ============================================================================
+high_security:
+  name: "High Security Focus"
+  description: "Emphasize security-related tokens with higher weights"
+  
+  prioritization:
+    base_scores:
+      phrase: 3.0
+      noun: 2.0
+      verb: 1.5
+      default: 1.0
+    bonus_scores:
+      security_related: 8.0      # 增加安全相关加分
+      validation_related: 4.0
+      boundary_check: 3.0
+  
+  scs:
+    weights:
+      validity: 0.50              # 增加有效性权重
+      coverage: 0.30
+      defect: 0.20
+    baseline:
+      validity: 0.85
+      coverage: 65.0
+      defects: 10
+    simulation:
+      variance: 0.1
+
+# ============================================================================
+# Experiment 3: Coverage Focused (覆盖率优先)
+# ============================================================================
+coverage_focused:
+  name: "Coverage Focused"
+  description: "Prioritize code coverage over other metrics"
+  
+  prioritization:
+    base_scores:
+      phrase: 3.0
+      noun: 2.0
+      verb: 1.5
+      default: 1.0
+    bonus_scores:
+      security_related: 5.0
+      validation_related: 4.0
+      boundary_check: 3.0
+  
+  scs:
+    weights:
+      validity: 0.25
+      coverage: 0.55              # 增加覆盖率权重
+      defect: 0.20
+    baseline:
+      validity: 0.85
+      coverage: 65.0
+      defects: 10
+    simulation:
+      variance: 0.1
+
+# ============================================================================
+# Experiment 4: Defect Detection Focus (缺陷检测优先)
+# ============================================================================
+defect_focused:
+  name: "Defect Detection Focus"
+  description: "Emphasize defect detection capability"
+  
+  prioritization:
+    base_scores:
+      phrase: 3.0
+      noun: 2.0
+      verb: 1.5
+      default: 1.0
+    bonus_scores:
+      security_related: 5.0
+      validation_related: 4.0
+      boundary_check: 3.0
+  
+  scs:
+    weights:
+      validity: 0.25
+      coverage: 0.25
+      defect: 0.50                # 增加缺陷检测权重
+    baseline:
+      validity: 0.85
+      coverage: 65.0
+      defects: 10
+    simulation:
+      variance: 0.1
+
+# ============================================================================
+# Experiment 5: Low Variance (低方差)
+# ============================================================================
+low_variance:
+  name: "Low Variance"
+  description: "Reduce simulation variance for more stable results"
+  
+  prioritization:
+    base_scores:
+      phrase: 3.0
+      noun: 2.0
+      verb: 1.5
+      default: 1.0
+    bonus_scores:
+      security_related: 5.0
+      validation_related: 4.0
+      boundary_check: 3.0
+  
+  scs:
+    weights:
+      validity: 0.40
+      coverage: 0.35
+      defect: 0.25
+    baseline:
+      validity: 0.85
+      coverage: 65.0
+      defects: 10
+    simulation:
+      variance: 0.05              # 降低方差到±5%
+
+# ============================================================================
+# Experiment 6: High Variance (高方差)
+# ============================================================================
+high_variance:
+  name: "High Variance"
+  description: "Increase simulation variance for stress testing"
+  
+  prioritization:
+    base_scores:
+      phrase: 3.0
+      noun: 2.0
+      verb: 1.5
+      default: 1.0
+    bonus_scores:
+      security_related: 5.0
+      validation_related: 4.0
+      boundary_check: 3.0
+  
+  scs:
+    weights:
+      validity: 0.40
+      coverage: 0.35
+      defect: 0.25
+    baseline:
+      validity: 0.85
+      coverage: 65.0
+      defects: 10
+    simulation:
+      variance: 0.2               # 增加方差到±20%
+
+# ============================================================================
+# Experiment 7: Strict Baseline (严格基线)
+# ============================================================================
+strict_baseline:
+  name: "Strict Baseline"
+  description: "Higher baseline metrics for comparison"
+  
+  prioritization:
+    base_scores:
+      phrase: 3.0
+      noun: 2.0
+      verb: 1.5
+      default: 1.0
+    bonus_scores:
+      security_related: 5.0
+      validation_related: 4.0
+      boundary_check: 3.0
+  
+  scs:
+    weights:
+      validity: 0.40
+      coverage: 0.35
+      defect: 0.25
+    baseline:
+      validity: 0.95              # 提高基线有效率
+      coverage: 80.0              # 提高基线覆盖率
+      defects: 20                 # 提高基线缺陷数
+    simulation:
+      variance: 0.1
+
+# ============================================================================
+# Experiment 8: Relaxed Baseline (宽松基线)
+# ============================================================================
+relaxed_baseline:
+  name: "Relaxed Baseline"
+  description: "Lower baseline metrics for comparison"
+  
+  prioritization:
+    base_scores:
+      phrase: 3.0
+      noun: 2.0
+      verb: 1.5
+      default: 1.0
+    bonus_scores:
+      security_related: 5.0
+      validation_related: 4.0
+      boundary_check: 3.0
+  
+  scs:
+    weights:
+      validity: 0.40
+      coverage: 0.35
+      defect: 0.25
+    baseline:
+      validity: 0.70              # 降低基线有效率
+      coverage: 50.0              # 降低基线覆盖率
+      defects: 5                  # 降低基线缺陷数
+    simulation:
+      variance: 0.1
+
+# ============================================================================
+# Experiment 9: Balanced Weights (均衡权重)
+# ============================================================================
+balanced_weights:
+  name: "Balanced Weights"
+  description: "Equal weights for all metrics"
+  
+  prioritization:
+    base_scores:
+      phrase: 3.0
+      noun: 2.0
+      verb: 1.5
+      default: 1.0
+    bonus_scores:
+      security_related: 5.0
+      validation_related: 4.0
+      boundary_check: 3.0
+  
+  scs:
+    weights:
+      validity: 0.333             # 均等权重
+      coverage: 0.333
+      defect: 0.334
+    baseline:
+      validity: 0.85
+      coverage: 65.0
+      defects: 10
+    simulation:
+      variance: 0.1
+
+# ============================================================================
+# Experiment 10: Minimal Scoring (最小评分)
+# ============================================================================
+minimal_scoring:
+  name: "Minimal Scoring"
+  description: "Minimal bonus scores to test base scoring"
+  
+  prioritization:
+    base_scores:
+      phrase: 3.0
+      noun: 2.0
+      verb: 1.5
+      default: 1.0
+    bonus_scores:
+      security_related: 1.0       # 最小加分
+      validation_related: 1.0
+      boundary_check: 1.0
+  
+  scs:
+    weights:
+      validity: 0.40
+      coverage: 0.35
+      defect: 0.25
+    baseline:
+      validity: 0.85
+      coverage: 65.0
+      defects: 10
+    simulation:
+      variance: 0.1
